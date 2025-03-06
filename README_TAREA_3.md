@@ -142,59 +142,74 @@ Finalmente así queda la base de datos
 Ejercicio 4: Dockerización de la Aplicación
 Creamos un Dockerfile en la carpeta raíz del proyecto
 		
-  	# Etapa de construcción
-	FROM maven:3.8.4-openjdk-23 AS build
-	WORKDIR /app
-	COPY pom.xml .
-	COPY src ./src
-	RUN mvn clean package -DskipTests
-
-	# Etapa de ejecución
-	FROM openjdk:17-jdk-slim
-	WORKDIR /app
-	COPY --from=build /app/target/*.jar app.jar
+  	FROM openjdk:21-jdk-slim
+	VOLUME /tmp
 	EXPOSE 8080
-	ENTRYPOINT ["java","-jar","app.jar"]
+	ADD ./target/login-system-0.0.1-SNAPSHOT.jar app.jar
+	ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 Posteriormente creamos docker-compose.yml igualmente en la carpeta raíz
 
-	version: '3.8'
+	version: "3.9"
 	services:
-	  app:
-	    build: .
+	
+	  login-admin:
+	    image: login-admin
+	    container_name: login-admin-container
+	    build:
+	      context: .
+	      dockerfile: Dockerfile
 	    ports:
 	      - "8080:8080"
+	    networks:
+	      - spring-network
 	    depends_on:
-	      - db
-	    environment:
-	      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/spring_hello
-	      SPRING_DATASOURCE_USERNAME: root
-	      SPRING_DATASOURCE_PASSWORD: example
+	      - mysql
 	
-	  db:
-	    image: mysql:8.0
+	  mysql:
+	    image: mysql
+	    container_name: mysql_database
 	    environment:
 	      MYSQL_ROOT_PASSWORD: admin
-	      MYSQL_DATABASE: tarea2
+	      MYSQL_DATABASE: loginsystem 
+	      MYSQL_USER: chalesmanto
+	      MYSQL_PASSWORD: 1234
 	    ports:
-	      - "3306:3306"
+	      - "3307:3306"
+	    networks:
+	      - spring-network
 	    volumes:
-	      - mysql_data:/var/lib/mysql
-	      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+	      - mysql-volume:/var/lib/mysql
 	
+	networks:
+	  spring-network:
 	volumes:
-	  mysql_data:
+	  mysql-volume:
 
 Creamos una cuenta nueva en https://hub.docker.com/ y descargamos DockerDesktop
 
 ![Captura de pantalla 2025-03-05 225749](https://github.com/user-attachments/assets/a5ad3412-0aeb-4a89-b6c3-f2a85eb9d37e)
 
+Modificamos application properties
 
-Ejecutamos en la terminal docker-compose up --build se descargarán los elementos
+	spring.application.name=login-system
+	spring.datasource.url=jdbc:mysql://mysql_database:3306/loginsystem
+	spring.datasource.username=chalesmanto
+	spring.datasource.password=1234
+	spring.jpa.hibernate.ddl-auto=update
+	spring.jpa.show-sql=true
+	spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
-![Captura de pantalla 2025-03-05 225725](https://github.com/user-attachments/assets/cea834d1-5d92-43e0-bc67-6290141b8277)
+Ejecutamos 'docker build -t "login-admin" .' y tambien 'docker pull mysql' para crear las imágenes de nuestro proyecto
 
-![Captura de pantalla 2025-03-05 230627](https://github.com/user-attachments/assets/9bbba26c-ed93-4eaa-a1aa-07f4fca0841e)
+![image](https://github.com/user-attachments/assets/08ec60a2-3fcb-402c-9548-e795a44d7072)
 
 
+Finalmente ejecutamos 'docker-compose up' para levantar el programa en el contenedor
    
+![image](https://github.com/user-attachments/assets/0d524a81-bd55-4b69-94f0-15a65b1076b4)
+
+Ingresamos a http://localhost:8080/ y podremos observar el Login funcionando
+
+![Captura de pantalla 2025-03-05 232835](https://github.com/user-attachments/assets/baff3397-3076-4dc3-bded-6dee9664d402)
+
