@@ -1,0 +1,9 @@
+mx\ipn\escom\loginsystem\model\User.class
+mx\ipn\escom\loginsystem\LoginSystemApplication.class
+mx\ipn\escom\loginsystem\repository\UserRepository.class
+mx\ipn\escom\loginsystem\controller\HomeController.class
+mx\ipn\escom\loginsystem\service\UserDetailsServiceImpl.class
+mx\ipn\escom\loginsystem\controller\AdminController.class
+mx\ipn\escom\loginsystem\controller\AuthController.class
+mx\ipn\escom\loginsystem\service\UserService.class
+mx\ipn\escom\loginsystem\security\SecurityConfig.class
