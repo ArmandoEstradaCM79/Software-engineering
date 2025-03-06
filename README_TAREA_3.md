@@ -207,7 +207,7 @@ Ejecutamos 'docker build -t "login-admin" .' y tambien 'docker pull mysql' para 
 
 Finalmente ejecutamos 'docker-compose up' para levantar el programa en el contenedor
    
-![image](https://github.com/user-attachments/assets/0d524a81-bd55-4b69-94f0-15a65b1076b4)
+![image](https://github.com/user-attachments/assets/31b4a489-2bd5-413d-ba30-e3b2f47b1e0e)
 
 Ingresamos a http://localhost:8080/ y podremos observar el Login funcionando
 
