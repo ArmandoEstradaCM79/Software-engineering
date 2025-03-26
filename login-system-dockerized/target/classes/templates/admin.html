@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <h2>Users List</h2>
+    <ul>
+        <li th:each="user : ${users}">
+            <span th:text="${user.username}"></span> - <span th:text="${user.role}"></span>
+        </li>
+    </ul>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn btn-danger">Cerrar Sesión</button>
+    </form>
+    
+</body>
+</html>
