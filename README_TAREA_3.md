@@ -144,49 +144,50 @@ Finalmente así queda la base de datos
 Ejercicio 4: Dockerización de la Aplicación
 Creamos un Dockerfile en la carpeta raíz del proyecto
 		
-  	FROM openjdk:21-jdk-slim
-	VOLUME /tmp
+  	FROM openjdk:23-jdk-slim
+   
+	# Copia wait-for-it.sh al contenedor
+	COPY wait-for-it.sh /wait-for-it.sh
+	RUN chmod +x /wait-for-it.sh
+	
+	WORKDIR /app
+	COPY target/login-system-0.0.1-SNAPSHOT.jar app.jar
+	
 	EXPOSE 8080
-	ADD ./target/login-system-0.0.1-SNAPSHOT.jar app.jar
-	ENTRYPOINT ["java", "-jar", "/app.jar"]
+	
+	# Espera a que MySQL esté listo y luego ejecuta la aplicación
+	ENTRYPOINT ["/wait-for-it.sh", "db:3306", "--", "java", "-jar", "app.jar"]
 
 Posteriormente creamos docker-compose.yml igualmente en la carpeta raíz
 
-	version: "3.9"
+	version: '3.8'
+
 	services:
-	
-	  login-admin:
-	    image: login-admin
-	    container_name: login-admin-container
-	    build:
-	      context: .
-	      dockerfile: Dockerfile
-	    ports:
-	      - "8080:8080"
-	    networks:
-	      - spring-network
-	    depends_on:
-	      - mysql
-	
-	  mysql:
-	    image: mysql
-	    container_name: mysql_database
+	  db:
+	    image: mysql:8.0
+	    container_name: mysql_db
 	    environment:
-	      MYSQL_ROOT_PASSWORD: admin
-	      MYSQL_DATABASE: loginsystem 
-	      MYSQL_USER: chalesmanto
-	      MYSQL_PASSWORD: 1234
+	      MYSQL_ROOT_PASSWORD: rootpassword  # Configura la contraseña del usuario root
+	      MYSQL_DATABASE: loginsystem        # Crea la base de datos automáticamente
 	    ports:
 	      - "3307:3306"
-	    networks:
-	      - spring-network
 	    volumes:
-	      - mysql-volume:/var/lib/mysql
+	      - mysql_data:/var/lib/mysql
 	
-	networks:
-	  spring-network:
+	  app:
+	    build: .
+	    container_name: springboot_app
+	    ports:
+	      - "8080:8080"
+	    environment:
+	      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/loginsystem
+	      SPRING_DATASOURCE_USERNAME: root
+	      SPRING_DATASOURCE_PASSWORD: rootpassword
+	    depends_on:
+	      - db
+	
 	volumes:
-	  mysql-volume:
+	  mysql_data:
 
 Creamos una cuenta nueva en https://hub.docker.com/ y descargamos DockerDesktop
 
