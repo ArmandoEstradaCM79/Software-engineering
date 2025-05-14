@@ -1,5 +1,5 @@
 
-# Proyecto individual Log in, Dockerización y Conexión con Base de Datos
+# Proyecto individual Log in, Dockerización y Bibliotecas recomendadas
 
 Continuando con el desarrollo retomando la tarea 1
 Tenemos Maven, JAVA y XAMPP instalados por lo que procederemos con:
